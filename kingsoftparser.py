@@ -2,11 +2,14 @@
 
 import os
 import sys
+import json
 
 from bs4 import BeautifulSoup
 
 
 class KingSoftParser(object):
+
+    wordList = []
 
     def __init__(self):
 
@@ -30,8 +33,15 @@ class KingSoftParser(object):
             self.parse(word, html)
             file.close()
             i += 1
-            if i > 10:
-                break
+            # if i > 10:
+            #     break
+            if i % 100 == 0:
+                print "current process is : ", i
+
+        print self.wordList
+        fOut = open('out/wordList.json', 'w')
+        fOut.write(json.dumps(self.wordList))
+        fOut.close()
         return
 
 
@@ -41,7 +51,10 @@ class KingSoftParser(object):
 
         doc = BeautifulSoup(html)
         #解析 词性和词义
-        groupPos = doc.select('div.group_prons .group_pos')[0]
+        groupPos = doc.select('div.group_prons .group_pos')
+        if len(groupPos) == 0:
+            return;
+        groupPos = groupPos[0]
         posTagList = groupPos.select('strong.fl')
         expTagList = groupPos.select('span.label_list')
         posList = []
@@ -59,8 +72,11 @@ class KingSoftParser(object):
         wordObj['pos'] = posList
 
         #解析 不同的变换形式
-        groupInf = doc.select('div.group_prons .group_inf ul')[0]
+        groupInf = doc.select('div.group_prons .group_inf ul')
+        if len(groupInf) == 0:
+            return
 
+        groupInf = groupInf[0]
         # 判断该词是否有过去式过去分词等选项
         flagText = groupInf.select('li')[0].text.encode('utf-8')
         # 代表groupInf第0个为单词的集中变换形式
@@ -79,8 +95,9 @@ class KingSoftParser(object):
                     wordObj['p.pr'] = aText
                 if u"第三人称单数" in liTag.text:
                     wordObj['3ps'] = aText
-        print wordObj
-        print '----------------'
+        # print wordObj
+        # print '----------------'
+        self.wordList.append(wordObj)
         return
 
 
