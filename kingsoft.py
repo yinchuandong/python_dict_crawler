@@ -17,14 +17,13 @@ g_cookieFile = './cookies.dat'
 
 g_mutex = threading.Condition()
 g_queueUrl = [] #等待爬取
-g_exsitUrl = [] #已经爬取
+g_exsitUrl = set() #已经爬取
 g_failedUrl = [] #爬取失败
 
 class KingSoft(object):
-    cookieFile = './cookies.dat'
 
     threadPool = []
-    threadNum = 5
+    threadNum = 10
 
     def __init__(self):
         global g_cookie
@@ -40,26 +39,26 @@ class KingSoft(object):
 
     def loadSeeds(self):
         global g_queueUrl
-        fhandle = open('oxford-words.txt', 'r')
-        for line in fhandle.readlines():
+
+        fLists = os.listdir('html')
+        for f in fLists:
+            name = f.split('.')[0]
+            word = name
+            if('_' in name):
+                word = name.split('_')[0]
+            g_exsitUrl.add(word)
+
+        print "已经爬取：", len(g_exsitUrl)
+
+        fDict = open('oxford-words.txt', 'r')
+        for line in fDict.readlines():
             line = line.strip()
-            g_queueUrl.append(line)
+            if(line not in g_exsitUrl):
+                g_queueUrl.append(line)
+        print "还未爬取：", len(g_queueUrl)
+        fDict.close()
+        
         # print g_queueUrl[10000]
-        return
-
-    def parse(self, html):
-        doc = BeautifulSoup(html)
-        # print doc
-        # groupPos = doc.find('div', attrs={"class":"searchword_word_morphology"})
-        # groupPos = doc.select('div.group_prons .group_pos ul')
-        # print groupPos
-        groupInf = doc.select('div.group_prons .group_inf ul')[0]
-
-        # 判断该词是否有过去式过去分词等选项
-        text = groupInf.select('li')[0].text.encode('utf-8')
-        if "大家都在背" not in text:
-            print groupInf
-        print text
         return
 
     def downloadAll(self):
@@ -103,14 +102,14 @@ class CrawlerThread(threading.Thread):
             self.lookup(self.word)
         except Exception, e:
             g_mutex.acquire()
-            g_exsitUrl.append(self.word)
+            g_exsitUrl.add(self.word)
             g_failedUrl.append(self.word)
             g_mutex.release()
             print 'fail to download or save: ', self.word
             print e
 
         g_mutex.acquire()
-        g_exsitUrl.append(self.word)
+        g_exsitUrl.add(self.word)
         g_mutex.release()
         return
 
@@ -135,8 +134,12 @@ class CrawlerThread(threading.Thread):
         if not os.path.exists('html'):
             os.makedirs('html')
         filepath = 'html/' + word + '.html';
-        if os.path.exists(filepath):
-            filepath = 'html/' + word + '_UPPER.html'
+        index = 1
+        while os.path.exists(filepath):
+            filepath = 'html/' + word + '_UPPER' + bytes(index) + '.html'
+            index += 1
+        # if os.path.exists(filepath):
+        #     filepath = 'html/' + word + '_UPPER.html'
         fhandle = open(filepath, 'w')
         fhandle.write(html)
         fhandle.close()
