@@ -23,11 +23,11 @@ def getConn():
     return conn
 
 def init():
-    dataPath = '/Users/yinchuandong/Downloads/9000/'
+    dataPath = '/Users/yinchuandong/www/strahelperserver/Uploads/data/'
     file = open('noneFileList.txt', 'w')
     conn = getConn()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    count = cursor.execute("select * from st_tutorial as t where t.categoryId=1")
+    count = cursor.execute("select * from st_tutorial as t where t.categoryId=2")
     results = cursor.fetchall()
     for item in results:
         fullName = item['fullName']
@@ -46,9 +46,14 @@ def init():
     return
 
 
+def test():
+    arr = [1, 2, 3, 4, 5, 6, 7]
+    return
+
 if __name__ == '__main__':
     print sys.getdefaultencoding()
-    init()
+    # init()
+    test()
 
 
 
