@@ -19,7 +19,7 @@ class YouDao(object):
     isLogin = False
 
     def __init__(self):
-    
+
         return
 
     def lookup(self, word):
@@ -36,12 +36,12 @@ class YouDao(object):
         additional = transCont.find('p', attrs={'class':'additional'})
         print additional.string
         return
-    
+
 
 
 def run():
     model = YouDao();
-    model.lookup("fix");
+    model.lookup("fix")
     return
 
 if __name__ == '__main__':
