@@ -1,0 +1,9 @@
+
+https://en.m.wikipedia.org/w/api.php?action=query&format=json&generator=prefixsearch&prop=pageprops%7Cpageprops%7Cpageimages%7Cpageterms&ppprop=displaytitle&piprop=thumbnail&pithumbsize=80&pilimit=15&wbptterms=description&gpssearch=Universit%C3%A4t+Innsbruck&gpsnamespace=0&gpslimit=15
+curl 'https://en.m.wikipedia.org/w/api.php?action=query&format=json&generator=prefixsearch&prop=pageprops%7Cpageprops%7Cpageimages%7Cpageterms&ppprop=displaytitle&piprop=thumbnail&pithumbsize=80&pilimit=15&wbptterms=description&gpssearch=Universit%C3%A4t+Innsbruck&gpsnamespace=0&gpslimit=15' -H 'pragma: no-cache' -H 'accept-encoding: gzip, deflate, sdch' -H 'x-requested-with: XMLHttpRequest' -H 'accept-language: zh-CN,zh;q=0.8,en;q=0.6,es;q=0.4,zh-TW;q=0.2,de;q=0.2' -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36' -H 'accept: application/json, text/javascript, */*; q=0.01' -H 'cache-control: no-cache' -H 'cookie: GeoIP=AU:07:Aspendale:-38.03:145.10:v4; CP=H2; WMF-Last-Access=07-Apr-2016' -H 'referer: https://en.m.wikipedia.org/wiki/University_of_Innsbruck' --compressed
+
+
+https://en.m.wikipedia.org/w/index.php?search=Universit%C3%A4t+Innsbruck
+
+curl 'https://en.m.wikipedia.org/w/index.php?search=Universit%C3%A4t+Innsbruck' -H 'pragma: no-cache' -H 'accept-encoding: gzip, deflate, sdch' -H 'accept-language: zh-CN,zh;q=0.8,en;q=0.6,es;q=0.4,zh-TW;q=0.2,de;q=0.2' -H 'upgrade-insecure-requests: 1' -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36' -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' -H 'cache-control: no-cache' -H 'cookie: GeoIP=AU:07:Aspendale:-38.03:145.10:v4; CP=H2; WMF-Last-Access=07-Apr-2016' -H 'referer: https://en.m.wikipedia.org/wiki/University_of_Innsbruck' --compressed
+

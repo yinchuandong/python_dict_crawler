@@ -1,6 +1,5 @@
 html
 #out
 cookies*
-#uniname/!*.py
 uniname/*.csv
 uniname/*.json

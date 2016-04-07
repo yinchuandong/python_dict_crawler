@@ -143,6 +143,7 @@ class CrawlerThread(threading.Thread):
         fhandle = open(filepath, 'w')
         fhandle.write(html)
         fhandle.close()
+        print html
 
         global g_cookie
         global g_cookieFile
@@ -150,8 +151,9 @@ class CrawlerThread(threading.Thread):
         return
 
 def run():
-    model = KingSoft()
-    model.lookup("Flavorful")
+    word = "Flavorful"
+    model = CrawlerThread(word)
+    model.lookup(word)
     return
 
 def runAll():
@@ -160,8 +162,8 @@ def runAll():
     return
 
 if __name__ == '__main__':
-    # run()
-    runAll()
+    run()
+    # runAll()
 
 
 
