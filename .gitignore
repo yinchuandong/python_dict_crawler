@@ -1,4 +1,5 @@
 html
+*.html
 #out
 cookies*
 uniname/*.csv
