@@ -1,7 +1,10 @@
 html
 *.html
+*.pyc
 #out
 cookies*
 uniname/*.csv
 uniname/*.json
+uniname/*.tar.gz
 sftp-*
+

@@ -1,4 +1,4 @@
-# encoding:utf-8
+# coding:utf-8
 import os
 import sys
 import csv
@@ -9,11 +9,16 @@ import urllib
 
 
 def loadUniList(filename):
+    unilist = []
+    visited = []
     with open(filename, 'rb') as f:
         reader = csv.reader(f)
         unilist = list(reader)
-        return unilist
-    return []
+    files = os.listdir('html_wiki/')
+    for filename in files:
+        uniname = filename.split('.html')[0]
+        visited.append(uniname)
+    return unilist, visited
 
 
 def testHttps():
@@ -44,13 +49,17 @@ def testRequest(uniname):
     return
 
 if __name__ == '__main__':
-    unilist = loadUniList('list.csv')
-    a = unilist[25]
-    print a
-    print a[0]
-    testRequest('Universität Innsbruck')
-    for uniname in unilist[1:10]:
-        testRequest(uniname[0])
-        time.sleep(0.5)
-
-
+    unilist, visited = loadUniList('list.csv')
+    # a = unilist[25]
+    # print a
+    # print a[0]
+    # print visited
+    # testRequest('Universität Innsbruck')
+    # for uniname in unilist[1:]:
+    #     if uniname[0] in visited:
+    #         continue
+    #     if '/' in uniname[0]:
+    #         continue
+    #     print uniname[0]
+    #     testRequest(uniname[0])
+    #     time.sleep(0.5)
