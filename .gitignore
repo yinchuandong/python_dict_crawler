@@ -4,3 +4,4 @@ html
 cookies*
 uniname/*.csv
 uniname/*.json
+sftp-*
