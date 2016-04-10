@@ -6,5 +6,9 @@ cookies*
 uniname/*.csv
 uniname/*.json
 uniname/*.tar.gz
+uniname/*.numbers
+uniname/logs_*
+uniname/*.zip
+uniname/emblem
 sftp-*
 

@@ -6,10 +6,12 @@ import json
 
 import csv
 from bs4 import BeautifulSoup
-from uniname import loadUniList
+from uninamecrawler import loadUniList
+from unicodedata import normalize
 
 def main():
-    files = os.listdir('html_wiki/')
+    savedir = 'html_wiki_2'
+    files = os.listdir(savedir)
     # files = [
     #     "Tsinghua University.html",
     #     "Abu Dhabi University.html",
@@ -17,16 +19,21 @@ def main():
     #     "Tokyo University.html",
     #     ]
     # print len(files)
+    if os.path.exists('logs_invalidfile.txt'):
+        os.remove('logs_invalidfile.txt')
     header = ["filename", "emblem", "engname", "nickname", "website"]
-    fcsv = open('emblem.csv', 'wb')
+    fcsv = open('emblem_2.csv', 'wb')
     writer = csv.writer(fcsv)
     writer.writerow(header)
     for i in range(len(files)):
-        # print files[i]
-        with open('html_wiki/' + files[i]) as f:
+        # very important, otherwise even if the string are the same,
+        # it will be differently treated
+        filename = normalize('NFC', files[i].decode('utf-8')).encode('utf-8')
+        print i, filename
+        with open(savedir + '/' + filename) as f:
             html = f.read()
             # filename, emblem, engname, nickname, website = parse(files[i], html)
-            uni = parse(files[i], html)
+            uni = parse(filename, html)
             # print uni
             if uni:
                 writer.writerow(uni)
@@ -41,7 +48,7 @@ def parse(filename, html):
     # print doc.title
     table = doc.select('table.vcard')
     if len(table) == 0:
-        invalidfile = open('invalidfile.txt', 'a')
+        invalidfile = open('logs_invalidfile.txt', 'a')
         invalidfile.writelines(filename + '\n')
         invalidfile.close()
         return None
@@ -50,9 +57,11 @@ def parse(filename, html):
     nickname = tag_nickname[0].text.encode('utf-8') if tag_nickname else ''
     # print nickname
 
-    tag_engname = table[0].select('caption')
-    engname = tag_engname[0].text.encode('utf-8') if tag_engname else ''
+    # tag_engname = table[0].select('caption')
+    # engname = tag_engname[0].text.encode('utf-8') if tag_engname else ''
     # print engname
+    tag_engname = doc.select('h1#firstHeading')
+    engname = tag_engname[0].text.encode('utf-8') if tag_engname else ''
 
     tag_emblem = table[0].select('a.image img')
     emblem = tag_emblem[0]['src'].encode('utf-8') if tag_emblem else ''
@@ -64,5 +73,16 @@ def parse(filename, html):
     uniname = filename.split('.html')[0]
     return (uniname, emblem, engname, nickname, website)
 
+
+def test():
+    filename = 'Inner Mongolia Polytechnic University.html'
+    with open('html_wiki_2/' + filename, 'r') as f:
+        html = f.read()
+        rt = parse(filename, html)
+        print rt
+    return
+
+
 if __name__ == '__main__':
-    main()
+    # main()
+    test()

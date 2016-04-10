@@ -6,7 +6,7 @@ import time
 
 import csv
 from bs4 import BeautifulSoup
-from uniname import loadUniList
+from uninamecrawler import loadUniList
 import requests
 
 
@@ -32,27 +32,43 @@ def download(savename, url):
     img.save('emblem/' + savename)
     return
 
-if __name__ == '__main__':
-    # download()
-    unilist, visited = loadUniList('list.csv')
+def main():
+    unilist, visited = loadUniList('list_check_native_name.csv')
     unilist = unilist[1:]
-    emap = loadEblemMap('emblem.csv')
+    emap = loadEblemMap('emblem_2.csv')
     # print emap['Central South University']
     # print emap['Charité - Universitätsmedizin Berlin']
+    if os.path.exists('logs_crawler_emblem.txt'):
+        os.remove('logs_crawler_emblem.txt')
     count = 0
     for uni in unilist:
         if uni[0] not in emap:
             continue
         count = count + 1
+        print count
         emblem = emap[uni[0]]
         url = emblem[1]
         if len(url) == 0:
             continue
         savename = uni[2]
-        download(savename, 'https:' + url)
+        if os.path.exists('emblem/' + savename):
+            continue
+        print uni
+        print savename
+        print url
+        print ''
+        try:
+            download(savename, 'https:' + url)
+        except Exception, e:
+            with open('logs_crawler_emblem.txt', 'a') as f:
+                f.writelines(savename + '\n')
         time.sleep(0.5)
         # break
     print count
+    return
+
+if __name__ == '__main__':
+    main()
 
 
 
