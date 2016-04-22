@@ -109,8 +109,93 @@ def checkEmblem():
 
 
 def checkEmblemOfManualUni():
-    
+    from shutil import copyfile
+    unilist, visited = loadUniList('list_check_aka.csv')
+    dst_dir = 'emblem_true/'
+    if not os.path.exists(dst_dir):
+        os.makedirs(dst_dir)
+    count = 0
+    for uni in unilist[1:]:
+        count = count + 1
+        if uni[4] == 'true' and os.path.exists('emblem/' + uni[2]):
+            copyfile('emblem/' + uni[2], dst_dir + uni[2])
+
     return
+
+
+def checkWebsite():
+    import requests
+    logs_file = 'logs_invalid_website.txt'
+    if os.path.exists(logs_file):
+        os.remove(logs_file)
+    unilist, visited = loadUniList('list_check_aka.csv')
+    idx = 1
+    for uni in unilist[1:]:
+        idx = idx + 1
+        url = uni[5]
+        if url == '':
+            continue
+        print url
+        # url = 'https://en.wikipedia.org/w/index.php?search=Peking University'
+        try:
+            res = requests.get(url)
+        except Exception, e:
+            print e
+            with open(logs_file, 'a') as f:
+                f.writelines(str(idx) + ',' + uni[0] + ',' + uni[4] + '\n')
+        else:
+            if res.status_code != 200 or res.history:
+                print res.status_code, res.history, res.url
+                with open(logs_file, 'a') as f:
+                    f.writelines(str(idx) + ',' + uni[0] + ',' + uni[4] + '\n')
+        # break
+    return
+
+
+def checkWebsiteWithError():
+    import requests
+    logs_file = 'logs_redirect_website.csv'
+    fcsv = open(logs_file, 'wb')
+    writer = csv.writer(fcsv)
+    writer.writerow(['id', 'uniname', 'manual', 'src', 'dst'])
+
+    unilist, visited = loadUniList('list_check_aka.csv')
+    errorList = []
+    with open('logs_invalid_website2.txt', 'r') as f:
+        for line in f.readlines():
+            errorList.append(int(line.split(',')[0]))
+    # print errorList[0:4]
+    idx = 1
+    for uni in unilist[1:]:
+        idx = idx + 1
+        if idx not in errorList:
+            continue
+        url = uni[5]
+        # print url
+        try:
+            res = requests.get(url)
+        except Exception, e:
+            print e
+            print ''
+            li = [str(idx), uni[0], uni[4], url, 'false']
+            writer.writerow(li)
+        else:
+            if res.status_code != 200:
+                li = [str(idx), uni[0], uni[4], url, int(res.status_code)]
+                writer.writerow(li)
+
+            if res.status_code == 200 and res.history:
+                print res.status_code, res.history
+                print url, res.url
+                print ''
+                li = [str(idx), uni[0], uni[4], url, res.url.encode('utf-8')]
+                writer.writerow(li)
+        # break
+    fcsv.close()
+    return
+    
+
+
 
 def testUtf8Normalization():
     a_list = u'Université de Strasbourg'
@@ -143,10 +228,14 @@ def testUtf8Normalization():
         os.remove(filename)
     return
 
+
+
 if __name__ == '__main__':
     # checkName()
     # checkAka()
     # checkNativeName()
     # checkEmblem()
-
+    # checkEmblemOfManualUni()
+    # checkWebsite()
+    checkWebsiteWithError()
 

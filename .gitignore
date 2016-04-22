@@ -10,5 +10,7 @@ uniname/*.numbers
 uniname/logs_*
 uniname/*.zip
 uniname/emblem
+uniname/emblem_*
+uniname/*backup
 sftp-*
 
