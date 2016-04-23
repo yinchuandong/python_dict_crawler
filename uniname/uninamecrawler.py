@@ -48,22 +48,38 @@ def testRequest(uniname, keyword, savedir='html_wiki'):
             fd.write(chunk)
     return
 
-if __name__ == '__main__':
-    unilist, visited = loadUniList('list_new3.csv', 'html_wiki_2')
-    # a = unilist[25]
-    # print a
-    # print a[0]
-    # print visited
-    # testRequest('Universität Innsbruck')
-    for uniname in unilist[1:]:
-        if uniname[0] in visited:
+def crawlEngnameFirst():
+    unilist, visited = loadUniList('list_0414.csv', 'html_wiki_3')
+    for uni in unilist[1:]:
+        uniname = uni[1]
+        if uniname in visited:
             continue
-        if '/' in uniname[0]:
+        if '/' in uniname:
             continue
-        print uniname[0]
-        engname = uniname[6]
+        print uniname
+        engname = uni[5]
         if engname == '':
-            testRequest(uniname[0], uniname[0], 'html_wiki_2')
+            testRequest(uniname, uniname, 'html_wiki_3')
         else:
-            testRequest(uniname[0], engname, 'html_wiki_2')
+            testRequest(uniname, engname, 'html_wiki_3')
         time.sleep(0.5)
+
+
+def crawlUninameFirst():
+    unilist, visited = loadUniList('list_0414.csv', 'html_wiki')
+    for uni in unilist[1:]:
+        uniname = uni[1]
+        if uniname in visited:
+            continue
+        if '/' in uniname:
+            continue
+        print uniname
+        testRequest(uniname, uniname, 'html_wiki')
+        time.sleep(0.5)
+
+
+if __name__ == '__main__':
+    # testRequest('Universität Innsbruck')
+    # crawlEngnameFirst()
+    crawlUninameFirst()
+    

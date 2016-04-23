@@ -12,5 +12,6 @@ uniname/*.zip
 uniname/emblem
 uniname/emblem_*
 uniname/*backup
+uniname/*.pkl
 sftp-*
 
