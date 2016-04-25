@@ -20,33 +20,29 @@ def loadData(filename):
 def parser(html):
     doc = BeautifulSoup(html, 'lxml')
     tag_head = doc.select('h1#firstHeading')
-    if not tag_head: 
+    if not tag_head:
         return
     if 'Search results' in tag_head[0].text:
-        return ''
-    tag_content = doc.select('div#mw-content-text')
+        return
+    tag_content = doc.select('div#mw-content-text > p')
     if not tag_content:
         return
-    tag_p = tag_content[0].select('p')[0]
+    tag_p = tag_content[0]
     text = encode(tag_p)
-
+    # print text
     # for those with bold
-    pattern = '\(.*?(<b>.*?<\/b>).*?\)'
+    # pattern = '\(.*?(<b>.*?<\/b>).*?\)'
+    pattern = '\(.*?((<i>.*?<\/i>)|(<b>.*?<\/b>))+.*?\)'
     matches = re.search(pattern, text)
     if matches:
         rakas = matches.group(0)
+        # print matches.group(1)
         h = BeautifulSoup(rakas, 'lxml')
         tag_b = h.select('b')
-        akalist = [encode(b.text) for b in tag_b]
-        return akalist
-
-    pattern = '\(.*?(<i>.*?<\/i>).*?\)'
-    matches = re.search(pattern, text)
-    if matches:
-        rakas = matches.group(0)
-        h = BeautifulSoup(rakas, 'lxml')
-        tag_b = h.select('i')
-        akalist = [encode(b.text) for b in tag_b]
+        blist = [encode(b.text) for b in tag_b]
+        tag_i = h.select('i')
+        ilist = [encode(i.text) for i in tag_i]
+        akalist = ilist + blist
         return akalist
 
     pattern = '\(.*?\)'
@@ -74,18 +70,21 @@ def encode(ustr):
     return ustr
 
 def mainParse():
-    unilist = loadData('list_0414.csv')
+    unilist = loadData('list_0425_3.csv')
     fcsv = open('list_wiki_aka_3.csv', 'wb')
     writer = csv.writer(fcsv)
     writer.writerow(['id', 'uniname', 'aka'])
     
     listWithAka = []    
-    for uni in unilist[15:]:
+    for uni in unilist[1:]:
         uniname = uni[1]
         # print uniname
         filename = 'html_wiki_3/' + uniname + '.html'
         if not os.path.exists(filename):
             continue
+        # if uniname != 'University of Sydney':
+        # if uniname != 'Universiteit Gent':
+            # continue
         with open(filename, 'rb') as f:
             html = f.read()
             akalist = parser(html)
@@ -158,4 +157,4 @@ if __name__ == '__main__':
     # mergeAka()
     # checkEngname()
     # checkEmblem()
-    mainParse()
+    # mainParse()

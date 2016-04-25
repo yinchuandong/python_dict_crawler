@@ -9,6 +9,7 @@ import hashlib
 import re
 import csv
 from bs4 import BeautifulSoup
+from akaparser import loadData
 
 def test():
     # filename = 'html_google/Universidad Torcuato di Tella.html'
@@ -169,7 +170,20 @@ def main():
     print count
     return
 
+
+def checkEmblem():
+    unilist = loadData('list_0423.csv')
+    count = 0
+    for uni in unilist[1:]:
+        imgname = uni[0] + '.png'
+        if not os.path.exists('emblem_0422/' + imgname):
+            print imgname, uni[1]
+            count = count + 1
+    print count
+    return
+
+
 if __name__ == '__main__':
-    # scrapeGoogle()
     # main()
     # googleCrawler()
+    checkEmblem()

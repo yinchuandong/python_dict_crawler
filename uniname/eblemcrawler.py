@@ -6,7 +6,6 @@ import time
 
 import csv
 from bs4 import BeautifulSoup
-from uninamecrawler import loadUniList
 import requests
 
 

@@ -6,195 +6,93 @@ import time
 
 import csv
 import re
-from uninamecrawler import loadUniList
-from eblemcrawler import loadEblemMap 
-
-
-def checkName():
-    unilist, visited = loadUniList('list.csv')
-    emap = loadEblemMap('emblem.csv')
-
-    fcsv = open('list_new.csv', 'wb')
-    writer = csv.writer(fcsv)
-    writer.writerow(unilist[0])
-    count = 0
-    for uni in unilist[1:]:
-        if uni[0] not in emap:
-            with open('logs_missing_uni.txt', 'a') as flogs:
-                flogs.writelines(uni[0] + '\n')
-        else:
-            extra = emap[uni[0]]
-            engname = extra[2]
-            nativename = extra[3]
-            uni[6] = engname if uni[6] == '' else uni[6]
-            uni[7] = nativename if nativename != '' else uni[7]
-        writer.writerow(uni)
-        count = count + 1
-        # break
-        # print uni
-        # print extra
-        # break
-    fcsv.close()
-    print count
-    return
-
-
-def checkAka():
-    unilist, visited = loadUniList('list_check_aka.csv.csv')
-
-    fcsv = open('list_check_aka_new.csv', 'wb')
-    writer = csv.writer(fcsv)
-    writer.writerow(unilist[0])
-    count = 0
-    for uni in unilist[1:]:
-        url = uni[5]
-        urlarr = url.split('.')
-        if len(urlarr) >= 3:
-            aka = urlarr[1].upper()
-            uni[-1] = aka if uni[-1] == '' else uni[-1]
-        else:
-            with open('logs_noaka.txt', 'a') as flogs:
-                flogs.writelines(uni[0] + '\n')
-        writer.writerow(uni)
-        
-        print uni
-        print extra
-        break
-
-    fcsv.close()
-
-    return
-
-
-def checkNativeName():
-    emap2 = loadEblemMap('emblem_2.csv')
-    unilist, visited = loadUniList('list_new3.csv')
-    count = 0
-    total = 0
-    fcsv = open('list_check_native_name.csv', 'wb')
-    writer = csv.writer(fcsv)
-    writer.writerow(unilist[0])
-    for i in range(len(unilist[1:])):
-        uni = unilist[i]
-        # if uni[4] != 'true':
-            # continue
-        if uni[0] in emap2:
-            extra = emap2[uni[0]]
-
-            if uni[6] != '' and uni[7] == '' and extra[3] != '':
-                uni[7] = extra[3]
-                count = count + 1
-                # print uni
-        writer.writerow(uni)
-        total = total + 1
-    print count, total
-
-    fcsv.close()
-    return
-
-
-def checkEmblem():
-    unilist, visited = loadUniList('list_check_native_name.csv')
-    with open('logs_no_emblem.txt', 'w') as f:
-        idx = 0
-        for uni in unilist[1:]:
-            idx = idx + 1
-            if uni[4] != 'true':
-                continue
-            imgname = uni[2]
-            # if not os.path.exists('/Users/yinchuandong/Dropbox/uniname/emblem_v0/' + imgname):
-            if not os.path.exists('emblem/' + imgname):
-                f.writelines(str(idx) + ',' + uni[0] + ',' + imgname + '\n')
-    return
-
-
-def checkEmblemOfManualUni():
-    from shutil import copyfile
-    unilist, visited = loadUniList('list_check_aka.csv')
-    dst_dir = 'emblem_true/'
-    if not os.path.exists(dst_dir):
-        os.makedirs(dst_dir)
-    count = 0
-    for uni in unilist[1:]:
-        count = count + 1
-        if uni[4] == 'true' and os.path.exists('emblem/' + uni[2]):
-            copyfile('emblem/' + uni[2], dst_dir + uni[2])
-
-    return
+from akaparser import loadData
 
 
 def checkWebsite():
     import requests
-    logs_file = 'logs_invalid_website.txt'
-    if os.path.exists(logs_file):
-        os.remove(logs_file)
-    unilist, visited = loadUniList('list_check_aka.csv')
+    logs_file = 'logs_website_invalid.csv'
+    fcsv = open(logs_file, 'wb')
+    writer = csv.writer(fcsv)
+    writer.writerow(['id','name', 'error','url', 'finalurl'])
     idx = 1
+    unilist = loadData('list_0423.csv')
     for uni in unilist[1:]:
         idx = idx + 1
-        url = uni[5]
+        url = uni[4]
         if url == '':
             continue
         print url
-        # url = 'https://en.wikipedia.org/w/index.php?search=Peking University'
         try:
-            res = requests.get(url)
+            res = requests.get(url, timeout=20)
         except Exception, e:
             print e
-            with open(logs_file, 'a') as f:
-                f.writelines(str(idx) + ',' + uni[0] + ',' + uni[4] + '\n')
-        else:
-            if res.status_code != 200 or res.history:
-                print res.status_code, res.history, res.url
-                with open(logs_file, 'a') as f:
-                    f.writelines(str(idx) + ',' + uni[0] + ',' + uni[4] + '\n')
-        # break
-    return
-
-
-def checkWebsiteWithError():
-    import requests
-    logs_file = 'logs_redirect_website.csv'
-    fcsv = open(logs_file, 'wb')
-    writer = csv.writer(fcsv)
-    writer.writerow(['id', 'uniname', 'manual', 'src', 'dst'])
-
-    unilist, visited = loadUniList('list_check_aka.csv')
-    errorList = []
-    with open('logs_invalid_website2.txt', 'r') as f:
-        for line in f.readlines():
-            errorList.append(int(line.split(',')[0]))
-    # print errorList[0:4]
-    idx = 1
-    for uni in unilist[1:]:
-        idx = idx + 1
-        if idx not in errorList:
-            continue
-        url = uni[5]
-        # print url
-        try:
-            res = requests.get(url)
-        except Exception, e:
-            print e
-            print ''
-            li = [str(idx), uni[0], uni[4], url, 'false']
-            writer.writerow(li)
+            writer.writerow([uni[0], uni[1], 'exception', uni[4], ''])
         else:
             if res.status_code != 200:
-                li = [str(idx), uni[0], uni[4], url, int(res.status_code)]
-                writer.writerow(li)
-
+                print res.status_code, res.history, res.url
+                writer.writerow([uni[0], uni[1], 'badcode:' + str(res.status_code), uni[4], res.url.encode('utf-8')])
             if res.status_code == 200 and res.history:
-                print res.status_code, res.history
-                print url, res.url
-                print ''
-                li = [str(idx), uni[0], uni[4], url, res.url.encode('utf-8')]
-                writer.writerow(li)
+                print res.status_code, res.history, res.url
+                writer.writerow([uni[0], uni[1], 'redirect', uni[4], res.url.encode('utf-8')])
         # break
-    fcsv.close()
     return
-    
 
+
+def loadInvalidWebsite(filename):
+    rtList = []
+    with open(filename, 'rb') as f:
+        reader = csv.reader(f)
+        rtList = list(reader)
+    return rtList
+
+
+def mergeWikiWebsite():
+    from eblemcrawler import loadEblemMap
+    emap = loadEblemMap('emblem_2.csv')
+    siteList = loadInvalidWebsite('logs_website_invalid.csv')
+
+    error = 0
+    correct = 0
+    writer = csv.writer(open('logs_website_merge.csv', 'wb'))
+    writer.writerow(siteList[0])
+    for site in siteList[1:]:
+        if site[2] == 'redirect':
+            writer.writerow(site)
+            continue
+        site[-1] = ''  # remove non redirect url
+        name = site[1]
+        error = error + 1
+        if name in emap:
+            url = emap[name][-1]
+            if url.startswith('http'):
+                correct = correct + 1
+                site[-1] = url
+        writer.writerow(site)
+    print error, correct
+    return
+
+
+def correctWebsite():
+    sitelist = []
+    with open('logs_website_merge.csv', 'rb') as f:
+        reader = csv.reader(f)
+        sitelist = list(reader)[1:]
+    sitemap = {}
+    for s in sitelist:
+        sitemap[s[0]] = s
+
+    unilist = loadData('list_0425_2.csv')
+    writer = csv.writer(open('list_0425_3.csv', 'wb'))
+    writer.writerow(unilist[0])
+    count = 0
+    for uni in unilist[1:]:
+        id = uni[0]
+        if id in sitemap and sitemap[id][-1] != '':
+            count = count + 1
+            uni[4] = sitemap[id][-1]
+        writer.writerow(uni)
+    print count
 
 
 def testUtf8Normalization():
@@ -229,13 +127,14 @@ def testUtf8Normalization():
     return
 
 
+def translate():
+    import goslate
+    gs = goslate.Goslate()
+    print(gs.translate('hello world', 'de'))
+    return
 
 if __name__ == '__main__':
-    # checkName()
-    # checkAka()
-    # checkNativeName()
-    # checkEmblem()
-    # checkEmblemOfManualUni()
     # checkWebsite()
-    checkWebsiteWithError()
-
+    # mergeWikiWebsite()
+    # correctWebsite()
+    translate()
