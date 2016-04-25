@@ -75,7 +75,7 @@ def encode(ustr):
 
 def mainParse():
     unilist = loadData('list_0414.csv')
-    fcsv = open('list_wiki_aka_0.csv', 'wb')
+    fcsv = open('list_wiki_aka_3.csv', 'wb')
     writer = csv.writer(fcsv)
     writer.writerow(['id', 'uniname', 'aka'])
     
@@ -83,7 +83,7 @@ def mainParse():
     for uni in unilist[15:]:
         uniname = uni[1]
         # print uniname
-        filename = 'html_wiki/' + uniname + '.html'
+        filename = 'html_wiki_3/' + uniname + '.html'
         if not os.path.exists(filename):
             continue
         with open(filename, 'rb') as f:
@@ -98,7 +98,7 @@ def mainParse():
         # print uni
         # break
     fcsv.close()
-    cPickle.dump(listWithAka, open('list_with_aka_0.pkl', 'wb'))
+    cPickle.dump(listWithAka, open('list_with_aka_3.pkl', 'wb'))
     return
 
 def mergeAka():
@@ -158,4 +158,4 @@ if __name__ == '__main__':
     # mergeAka()
     # checkEngname()
     # checkEmblem()
-    # mainParse()
+    mainParse()
